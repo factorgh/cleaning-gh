@@ -1,3 +1,4 @@
+import { message } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services-api/authApi";
@@ -5,8 +6,8 @@ import { login } from "../services-api/authApi";
 export function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
+    username: "admin",
+    password: "admin",
   });
   const [error, setError] = useState("");
 
@@ -15,7 +16,11 @@ export function Login() {
     try {
       const { token } = await login(formData);
       localStorage.setItem("token", token);
-      navigate("/");
+      if (formData.password !== "admin" && formData.password !== "admin") {
+        message.error("Invalid credentials");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     }
