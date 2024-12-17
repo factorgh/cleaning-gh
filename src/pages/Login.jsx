@@ -1,8 +1,6 @@
-import { Button } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services-api/authApi";
-// import { authApi } from "../lib/api/auth";
 
 export function Login() {
   const navigate = useNavigate();
@@ -24,22 +22,37 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Left Side Image */}
+      <div className="hidden lg:block w-1/2">
+        <img
+          src="/logo.jpg"
+          alt="Car Cleaning Service"
+          className="object-cover w-full h-full"
+        />
+      </div>
+
+      {/* Right Side Form */}
+      <div className="flex items-center justify-center w-full lg:w-1/2 p-8 bg-white">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Welcome Back
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Sign in to access your dashboard and manage your services.
+            </p>
+          </div>
+
           {error && (
             <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
-          <div className="rounded-md shadow-sm -space-y-px">
+
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="username" className="sr-only">
+              <label htmlFor="username" className="block text-sm font-medium">
                 Username
               </label>
               <input
@@ -47,8 +60,8 @@ export function Login() {
                 name="username"
                 type="text"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
+                className="w-full px-3 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-200"
+                placeholder="Enter your username"
                 value={formData.username}
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
@@ -56,7 +69,7 @@ export function Login() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium">
                 Password
               </label>
               <input
@@ -64,20 +77,30 @@ export function Login() {
                 name="password"
                 type="password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                className="w-full px-3 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-200"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
               />
             </div>
-          </div>
+            <button
+              type="submit"
+              className="w-full py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Sign In
+            </button>
+          </form>
 
-          <div>
-            <Button type="submit">Sign In</Button>
+          {/* Footer */}
+          <div className="text-center text-sm text-gray-500">
+            Don’t have an account?{" "}
+            <a href="/signup" className="text-blue-500 hover:underline">
+              Sign Up
+            </a>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

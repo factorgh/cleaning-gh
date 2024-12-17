@@ -1,10 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Input, Select } from "antd";
 import { useState } from "react";
 
 import { formatValidationError } from "../lib/utils/validation";
-import { getAllCars } from "../services-api/carApi";
-import { getAll } from "../services-api/customerApi";
 
 const { Option } = Select;
 
@@ -20,14 +17,46 @@ export function Cars() {
   });
   const [error, setError] = useState("");
 
-  const { data: cars, isLoading: carsLoading } = useQuery({
-    queryKey: ["cars"],
-    queryFn: getAllCars,
-  });
-  const { data: customers } = useQuery({
-    queryKey: ["customers"],
-    queryFn: getAll,
-  });
+  const cars = [
+    {
+      id: 101,
+      make: "Toyota",
+      model: "Camry",
+      registration_number: "ABC123",
+    },
+    {
+      id: 102,
+      make: "Honda",
+      model: "Civic",
+      registration_number: "XYZ456",
+    },
+    {
+      id: 103,
+      make: "Ford",
+      model: "Mustang",
+      registration_number: "DEF789",
+    },
+  ];
+
+  const customers = [
+    {
+      id: 1,
+      name: "John Doe",
+      email: "johndoe@example.com",
+      phone: "123-456-7890",
+      address: "123 Main St, Springfield",
+      type: "individual",
+    },
+    {
+      id: 2,
+      name: "TechCorp Ltd.",
+      email: "contact@techcorp.com",
+      phone: "555-987-6543",
+      address: "456 Business Ave, Metropolis",
+      type: "company",
+    },
+    //... more customers
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,8 +71,6 @@ export function Cars() {
       setError(formatValidationError(err));
     }
   };
-
-  if (carsLoading) return <div>Loading...</div>;
 
   return (
     <div className="space-y-6">

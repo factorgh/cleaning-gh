@@ -3,9 +3,8 @@ import {
   Card as AntCard,
   Input as AntInput,
   Select as AntSelect,
-} from "antd"; // Ant Design Button
+} from "antd";
 import { useState } from "react";
-// import { customersApi } from "../lib/api/customers";
 import { formatValidationError } from "../lib/utils/validation";
 
 export function Customers() {
@@ -19,7 +18,33 @@ export function Customers() {
   });
   const [error, setError] = useState("");
 
-  const customers = [];
+  // Dummy customers array with mock data
+  const customers = [
+    {
+      id: 1,
+      name: "John Doe",
+      email: "johndoe@example.com",
+      phone: "123-456-7890",
+      address: "123 Main St, Springfield",
+      type: "individual",
+    },
+    {
+      id: 2,
+      name: "TechCorp Ltd.",
+      email: "contact@techcorp.com",
+      phone: "555-987-6543",
+      address: "456 Business Ave, Metropolis",
+      type: "company",
+    },
+    {
+      id: 3,
+      name: "Jane Smith",
+      email: "janesmith@email.com",
+      phone: "987-654-3210",
+      address: "789 Park Lane, Gotham City",
+      type: "individual",
+    },
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +74,7 @@ export function Customers() {
               <div className="bg-red-50 text-red-700 p-3 rounded">{error}</div>
             )}
             <AntInput
-              label="Name"
+              placeholder="Name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -57,7 +82,7 @@ export function Customers() {
               required
             />
             <AntInput
-              label="Email"
+              placeholder="Email"
               type="email"
               value={formData.email}
               onChange={(e) =>
@@ -66,7 +91,7 @@ export function Customers() {
               required
             />
             <AntInput
-              label="Phone"
+              placeholder="Phone"
               type="tel"
               value={formData.phone}
               onChange={(e) =>
@@ -74,7 +99,7 @@ export function Customers() {
               }
             />
             <AntInput
-              label="Address"
+              placeholder="Address"
               value={formData.address}
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
