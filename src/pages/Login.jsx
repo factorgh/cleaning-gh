@@ -96,7 +96,7 @@ export function Login() {
           {/* Footer */}
           <div className="text-center text-sm text-gray-500">
             Don’t have an account?{" "}
-            <a href="/signup" className="text-blue-500 hover:underline">
+            <a href="#" className="text-blue-500 hover:underline">
               Sign Up
             </a>
           </div>
