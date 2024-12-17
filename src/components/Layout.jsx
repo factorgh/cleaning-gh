@@ -40,6 +40,7 @@ export function Layout({ children }) {
             <Link
               key={item.name}
               to={item.href}
+              onClick={toggleDrawer}
               className={`${
                 isActive
                   ? "bg-primary-50 text-primary-700"
@@ -73,8 +74,8 @@ export function Layout({ children }) {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden absolute top-4 right-40 z-10">
-          <Menu className="w-6 h-6 mt-3" onClick={toggleDrawer} />
+        <div className="md:hidden top-4 right-40 z-10 left-3">
+          <Menu className="w-6 h-6 mt-5 ml-3 " onClick={toggleDrawer} />
         </div>
 
         {/* Drawer for Mobile */}
