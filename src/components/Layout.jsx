@@ -6,6 +6,7 @@ import {
   UserGroupIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
+import { LogInIcon } from "lucide-react";
 
 import { Link, useLocation } from "react-router-dom";
 
@@ -15,6 +16,7 @@ const navigation = [
   { name: "Cars", href: "/cars", icon: TruckIcon },
   { name: "Services", href: "/services", icon: WrenchScrewdriverIcon },
   { name: "Statistics", href: "/statistics", icon: ChartBarIcon },
+  { name: "Logout", href: "/login", icon: LogInIcon },
 ];
 
 export function Layout({ children }) {
