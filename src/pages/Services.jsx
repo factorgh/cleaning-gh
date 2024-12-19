@@ -1,88 +1,60 @@
 import { Button, Card, Form, Input, InputNumber, Select } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { formatValidationError } from "../lib/utils/validation";
+import { getAllCars } from "../services-api/carApi";
+import { createService, getAllService } from "../services-api/servicesApi";
 
 const { Option } = Select;
 
 export function Services() {
   const [isAdding, setIsAdding] = useState(false);
+  const [cars, setCars] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [services, setServices] = useState([]);
   const [formData, setFormData] = useState({
-    car_id: "",
-    service_type: "",
-    service_date: new Date().toISOString().split("T")[0],
-    cost: "",
+    car: "",
+    serviceType: "",
+    serviceDate: new Date().toISOString().split("T")[0],
+    servicePrice: "",
     notes: "",
   });
   const [error, setError] = useState("");
+  useEffect(() => {
+    fetchAllCars();
+    fetchAllServices();
+  }, []);
 
-  // Query for services and cars
-  // Dummy cars and services data for demo
-  const services = [
-    {
-      id: 1,
-      car_id: 101,
-      make: "Toyota",
-      model: "Camry",
-      registration_number: "ABC123",
-      service_type: "Oil Change",
-      service_date: "2024-05-10",
-      cost: 50.0,
-      notes: "Changed oil and checked filters.",
-    },
-    {
-      id: 2,
-      car_id: 102,
-      make: "Honda",
-      model: "Civic",
-      registration_number: "XYZ456",
-      service_type: "Tire Rotation",
-      service_date: "2024-05-12",
-      cost: 30.0,
-      notes: "",
-    },
-    {
-      id: 3,
-      car_id: 103,
-      make: "Ford",
-      model: "Focus",
-      registration_number: "DEF789",
-      service_type: "Brake Inspection",
-      service_date: "2024-05-15",
-      cost: 70.0,
-      notes: "Brakes are in good condition.",
-    },
-  ];
+  const fetchAllCars = async () => {
+    try {
+      const response = await getAllCars(); // Assuming `getAllCars` fetches data
+      setCars(response);
+    } catch (err) {
+      console.error("Error fetching cars:", err);
+    }
+  };
 
-  const cars = [
-    {
-      id: 101,
-      make: "Toyota",
-      model: "Camry",
-      registration_number: "ABC123",
-    },
-    {
-      id: 102,
-      make: "Honda",
-      model: "Civic",
-      registration_number: "XYZ456",
-    },
-    {
-      id: 103,
-      make: "Ford",
-      model: "Focus",
-      registration_number: "DEF789",
-    },
-  ];
-
-  // Mutation for adding service
+  const fetchAllServices = async () => {
+    try {
+      const response = await getAllService();
+      console.log(response);
+      setServices(response);
+    } catch (err) {
+      console.error("Error fetching customers:", err);
+    }
+  };
 
   // Handle form submission and validation
   const handleSubmit = async () => {
     try {
       // Trigger the mutation to add the service
       console.log(formData);
+      setIsLoading(true);
+      await createService(formData);
+      setIsAdding(false);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       setError(formatValidationError(err));
     }
   };
@@ -110,49 +82,49 @@ export function Services() {
             )}
 
             {/* Car Selection */}
-            <Form.Item label="Car" name="car_id" required>
+            <Form.Item label="Car" name="car" required>
               <Select
-                value={formData.car_id}
-                onChange={(value) =>
-                  setFormData({ ...formData, car_id: value })
-                }
+                value={formData.car}
+                onChange={(value) => setFormData({ ...formData, car: value })}
                 placeholder="Select a Car"
               >
                 {cars?.map((car) => (
-                  <Option key={car.id} value={car.id}>
-                    {car.make} {car.model} - {car.registration_number}
+                  <Option key={car._id} value={car._id}>
+                    {car.make} {car.model} - {car.registrationNumber}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
 
             {/* Service Type Input */}
-            <Form.Item label="Service Type" name="service_type" required>
+            <Form.Item label="Service Type" name="serviceType" required>
               <Input
-                value={formData.service_type}
+                value={formData.serviceType}
                 onChange={(e) =>
-                  setFormData({ ...formData, service_type: e.target.value })
+                  setFormData({ ...formData, serviceType: e.target.value })
                 }
                 placeholder="Enter service type"
               />
             </Form.Item>
 
             {/* Service Date Input */}
-            <Form.Item label="Service Date" name="service_date" required>
+            <Form.Item label="Service Date" name="serviceDate" required>
               <Input
                 type="date"
-                value={formData.service_date}
+                value={formData.serviceDate}
                 onChange={(e) =>
-                  setFormData({ ...formData, service_date: e.target.value })
+                  setFormData({ ...formData, serviceDate: e.target.value })
                 }
               />
             </Form.Item>
 
             {/* Cost Input */}
-            <Form.Item label="Cost" name="cost" required>
+            <Form.Item label="Cost" name="servicePrice" required>
               <InputNumber
-                value={formData.cost}
-                onChange={(value) => setFormData({ ...formData, cost: value })}
+                value={formData.servicePrice}
+                onChange={(value) =>
+                  setFormData({ ...formData, servicePrice: value })
+                }
                 min={0}
                 step={0.01}
                 formatter={(value) => `$ ${value}`}
@@ -181,7 +153,7 @@ export function Services() {
               >
                 Cancel
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button loading={isLoading} type="primary" htmlType="submit">
                 Save Service
               </Button>
             </div>
@@ -192,13 +164,14 @@ export function Services() {
       {/* Display list of services */}
       <div className="space-y-6">
         {services?.map((service) => (
-          <Card key={service.id} title={service.service_type}>
+          <Card key={service.id} title={service.serviceType}>
             <div>
               <p>
-                {service.make} {service.model} - {service.registration_number}
+                {service.car.make} {service.car.model} -{" "}
+                {service.car.registrationNumber}
               </p>
-              <p>Cost: ${service.cost.toFixed(2)}</p>
-              <p>Date: {new Date(service.service_date).toLocaleDateString()}</p>
+              <p>Cost: ${service.servicePrice.toFixed(2)}</p>
+              <p>Date: {new Date(service.serviceDate).toLocaleDateString()}</p>
               {service.notes && <p>Notes: {service.notes}</p>}
             </div>
           </Card>

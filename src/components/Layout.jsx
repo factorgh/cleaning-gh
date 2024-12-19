@@ -40,7 +40,8 @@ export function Layout({ children }) {
             <Link
               key={item.name}
               to={item.href}
-              onClick={toggleDrawer}
+              onClick={() => setIsDrawerVisible(false)}
+              // onClick={toggleDrawer}
               className={`${
                 isActive
                   ? "bg-primary-50 text-primary-700"

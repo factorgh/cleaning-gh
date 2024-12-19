@@ -4,11 +4,14 @@ import {
   Input as AntInput,
   Select as AntSelect,
 } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatValidationError } from "../lib/utils/validation";
+import { createCustomer, getAll } from "../services-api/customerApi";
 
 export function Customers() {
   const [isAdding, setIsAdding] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [customers, setCustomers] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,39 +21,31 @@ export function Customers() {
   });
   const [error, setError] = useState("");
 
-  // Dummy customers array with mock data
-  const customers = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "johndoe@example.com",
-      phone: "123-456-7890",
-      address: "123 Main St, Springfield",
-      type: "individual",
-    },
-    {
-      id: 2,
-      name: "TechCorp Ltd.",
-      email: "contact@techcorp.com",
-      phone: "555-987-6543",
-      address: "456 Business Ave, Metropolis",
-      type: "company",
-    },
-    {
-      id: 3,
-      name: "Jane Smith",
-      email: "janesmith@email.com",
-      phone: "987-654-3210",
-      address: "789 Park Lane, Gotham City",
-      type: "individual",
-    },
-  ];
+  useEffect(() => {
+    getAllCustomers();
+  }, []);
+  // Get all customers
+  const getAllCustomers = async () => {
+    try {
+      const response = await getAll();
+      setCustomers(response);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleSubmit = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       console.log(formData);
+      await createCustomer(formData);
+      getAllCustomers();
+      setIsAdding(false);
+      setIsLoading(false);
     } catch (err) {
+      setIsLoading(false);
       if (err instanceof Error) {
         setError(formatValidationError(err));
       }
@@ -128,7 +123,7 @@ export function Customers() {
               >
                 Cancel
               </AntButton>
-              <AntButton type="primary" htmlType="submit">
+              <AntButton loading={isLoading} type="primary" htmlType="submit">
                 Save Customer
               </AntButton>
             </div>

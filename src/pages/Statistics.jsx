@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -11,10 +12,26 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent } from "../components/ui/Card";
+import { getAll } from "../services-api/customerApi";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
 export function Statistics() {
+  const [customers, setCustomers] = useState([]);
+  useEffect(() => {
+    getAllCustomers();
+  }, []);
+  // Get all customers
+  const getAllCustomers = async () => {
+    try {
+      const response = await getAll();
+      setCustomers(response);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const stats = {
     totalCustomers: { count: 123 },
     totalRevenue: { total: 45870.5 },
@@ -39,7 +56,7 @@ export function Statistics() {
               Total Customers
             </h3>
             <p className="mt-2 text-3xl font-semibold text-primary-600">
-              {stats?.totalCustomers.count}
+              {customers.length}
             </p>
           </CardContent>
         </Card>
@@ -48,7 +65,7 @@ export function Statistics() {
           <CardContent>
             <h3 className="text-lg font-medium text-gray-900">Total Revenue</h3>
             <p className="mt-2 text-3xl font-semibold text-primary-600">
-              ${stats?.totalRevenue.total?.toFixed(2) || "0.00"}
+              ${"0.00"}
             </p>
           </CardContent>
         </Card>

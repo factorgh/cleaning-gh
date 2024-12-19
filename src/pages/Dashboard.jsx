@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -7,8 +8,24 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { getAll } from "../services-api/customerApi";
 
 export function Dashboard() {
+  const [customers, setCustomers] = useState([]);
+  useEffect(() => {
+    getAllCustomers();
+  }, []);
+  // Get all customers
+  const getAllCustomers = async () => {
+    try {
+      const response = await getAll();
+      setCustomers(response);
+      console.log(response);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Dummy stats data
   const stats = {
     totalCustomers: { count: 150 },
@@ -30,7 +47,7 @@ export function Dashboard() {
               Total Customers
             </dt>
             <dd className="mt-1 text-3xl font-semibold text-gray-900">
-              {stats?.totalCustomers?.count || "0"}
+              {customers.length || "0"}
             </dd>
           </div>
         </div>
@@ -42,7 +59,7 @@ export function Dashboard() {
               Total Revenue
             </dt>
             <dd className="mt-1 text-3xl font-semibold text-gray-900">
-              ${stats?.totalRevenue?.total?.toFixed(2) || "0.00"}
+              ${"0.00"}
             </dd>
           </div>
         </div>

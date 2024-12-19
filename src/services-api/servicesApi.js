@@ -1,5 +1,11 @@
-export const getAllService = async () => {};
+import axiosInstance from "./base";
+
+export const getAllService = async () => {
+  const res = await axiosInstance.get("/services");
+  return res.data;
+};
 
 export const createService = async (serviceData) => {
-  console.log(serviceData);
+  const res = await axiosInstance.post("/services", serviceData);
+  return res.data;
 };

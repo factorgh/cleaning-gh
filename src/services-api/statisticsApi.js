@@ -1,1 +1,3 @@
-export const getStatistics = () => {};
+export const getStatistics = () => {
+  return {};
+};

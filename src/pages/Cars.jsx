@@ -1,74 +1,73 @@
 import { Button, Card, Input, Select } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { formatValidationError } from "../lib/utils/validation";
+import { createCars, getAllCars } from "../services-api/carApi";
+import { getAll as getAllCustomersAPI } from "../services-api/customerApi"; // Clear import alias
 
 const { Option } = Select;
 
 export function Cars() {
   const [isAdding, setIsAdding] = useState(false);
+  const [cars, setCars] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [customers, setCustomers] = useState([]);
   const [formData, setFormData] = useState({
-    customer_id: "",
+    owner: "",
     make: "",
     model: "",
     year: new Date().getFullYear(),
-    fuel_type: "",
-    registration_number: "",
+    fuelType: "",
+    registrationNumber: "",
   });
   const [error, setError] = useState("");
 
-  const cars = [
-    {
-      id: 101,
-      make: "Toyota",
-      model: "Camry",
-      registration_number: "ABC123",
-    },
-    {
-      id: 102,
-      make: "Honda",
-      model: "Civic",
-      registration_number: "XYZ456",
-    },
-    {
-      id: 103,
-      make: "Ford",
-      model: "Mustang",
-      registration_number: "DEF789",
-    },
-  ];
+  useEffect(() => {
+    fetchAllCars();
+    fetchAllCustomers();
+  }, []);
 
-  const customers = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "johndoe@example.com",
-      phone: "123-456-7890",
-      address: "123 Main St, Springfield",
-      type: "individual",
-    },
-    {
-      id: 2,
-      name: "TechCorp Ltd.",
-      email: "contact@techcorp.com",
-      phone: "555-987-6543",
-      address: "456 Business Ave, Metropolis",
-      type: "company",
-    },
-    //... more customers
-  ];
+  const fetchAllCars = async () => {
+    try {
+      const response = await getAllCars();
+      console.log(response);
+      setCars(response);
+    } catch (err) {
+      console.error("Error fetching cars:", err);
+    }
+  };
+
+  const fetchAllCustomers = async () => {
+    try {
+      const response = await getAllCustomersAPI();
+      setCustomers(response);
+    } catch (err) {
+      console.error("Error fetching customers:", err);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
     try {
-      const validated = {
+      const validatedData = {
         ...formData,
-        customer_id: parseInt(formData.customer_id),
-        year: parseInt(String(formData.year)),
+
+        year: Math.min(
+          parseInt(String(formData.year)),
+          new Date().getFullYear() + 1
+        ),
       };
-      console.log(JSON.stringify(validated));
+
+      await createCars(validatedData);
+      fetchAllCars();
+      setIsAdding(false);
     } catch (err) {
       setError(formatValidationError(err));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,26 +86,26 @@ export function Cars() {
             {error && (
               <div className="bg-red-50 text-red-700 p-3 rounded">{error}</div>
             )}
+            {/* Owner Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Owner
               </label>
               <Select
-                value={formData.customer_id}
-                onChange={(value) =>
-                  setFormData({ ...formData, customer_id: value })
-                }
+                value={formData.owner}
+                onChange={(value) => setFormData({ ...formData, owner: value })}
                 className="mt-1 w-full"
                 placeholder="Select Owner"
                 required
               >
-                {customers?.map((customer) => (
-                  <Option key={customer.id} value={customer.id}>
-                    {customer.name}
+                {customers?.map((owner) => (
+                  <Option key={owner._id} value={owner._id}>
+                    {owner.name}
                   </Option>
                 ))}
               </Select>
             </div>
+            {/* Make Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Make
@@ -119,6 +118,7 @@ export function Cars() {
                 required
               />
             </div>
+            {/* Rest of the fields are unchanged */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Model
@@ -146,14 +146,15 @@ export function Cars() {
                 required
               />
             </div>
+            {/* Similar changes for remaining fields */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Fuel Type
               </label>
               <Input
-                value={formData.fuel_type}
+                value={formData.fuelType}
                 onChange={(e) =>
-                  setFormData({ ...formData, fuel_type: e.target.value })
+                  setFormData({ ...formData, fuelType: e.target.value })
                 }
                 required
               />
@@ -163,16 +164,17 @@ export function Cars() {
                 Registration Number
               </label>
               <Input
-                value={formData.registration_number}
+                value={formData.registrationNumber}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    registration_number: e.target.value,
+                    registrationNumber: e.target.value,
                   })
                 }
                 required
               />
             </div>
+            {/* Buttons */}
             <div className="flex justify-end space-x-3">
               <Button
                 type="default"
@@ -181,7 +183,12 @@ export function Cars() {
               >
                 Cancel
               </Button>
-              <Button type="primary" htmlType="submit" size="middle">
+              <Button
+                loading={isLoading}
+                type="primary"
+                htmlType="submit"
+                size="middle"
+              >
                 Save Car
               </Button>
             </div>
@@ -192,9 +199,9 @@ export function Cars() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {cars?.map((car) => (
           <Card key={car.id} title={`${car.make} ${car.model}`}>
-            <p>Owner: {car.owner_name}</p>
-            <p>Fuel Type: {car.fuel_type}</p>
-            <p>Registration: {car.registration_number}</p>
+            <p>Owner: {car.owner.name}</p>
+            <p>Fuel Type: {car.fuelType}</p>
+            <p>Registration: {car.registrationNumber}</p>
             <p>Year: {car.year}</p>
           </Card>
         ))}
