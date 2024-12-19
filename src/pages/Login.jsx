@@ -6,23 +6,24 @@ import { login } from "../services-api/authApi";
 export function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "admin",
-    password: "admin",
+    username: "",
+    password: "",
   });
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Ensure form values match before navigation
+      if (formData.username !== "admin" || formData.password !== "admin") {
+        message.error("Invalid credentials");
+        return;
+      }
       const { token } = await login(formData);
       localStorage.setItem("token", token);
-      if (formData.password !== "admin" && formData.password !== "admin") {
-        message.error("Invalid credentials");
-      } else {
-        navigate("/");
-      }
+      navigate("/");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "An error occurred during login.");
     }
   };
 
