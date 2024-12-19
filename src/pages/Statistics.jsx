@@ -13,11 +13,13 @@ import {
 } from "recharts";
 import { Card, CardContent } from "../components/ui/Card";
 import { getAll } from "../services-api/customerApi";
+import { getAllService } from "../services-api/servicesApi";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 
 export function Statistics() {
   const [customers, setCustomers] = useState([]);
+  const [services, setServices] = useState([]);
   useEffect(() => {
     getAllCustomers();
   }, []);
@@ -31,6 +33,23 @@ export function Statistics() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchAllServices();
+  }, []);
+  const fetchAllServices = async () => {
+    try {
+      const response = await getAllService();
+      console.log(response);
+      setServices(response);
+    } catch (err) {
+      console.error("Error fetching customers:", err);
+    }
+  };
+
+  const getTotalRevenue = services.reduce((total, service) => {
+    return total + service.servicePrice;
+  }, 0);
 
   const stats = {
     totalCustomers: { count: 123 },
@@ -65,7 +84,7 @@ export function Statistics() {
           <CardContent>
             <h3 className="text-lg font-medium text-gray-900">Total Revenue</h3>
             <p className="mt-2 text-3xl font-semibold text-primary-600">
-              ${"0.00"}
+              ${getTotalRevenue || "0.00"}
             </p>
           </CardContent>
         </Card>

@@ -9,9 +9,11 @@ import {
   YAxis,
 } from "recharts";
 import { getAll } from "../services-api/customerApi";
+import { getAllService } from "../services-api/servicesApi";
 
 export function Dashboard() {
   const [customers, setCustomers] = useState([]);
+  const [services, setServices] = useState([]);
   useEffect(() => {
     getAllCustomers();
   }, []);
@@ -25,6 +27,23 @@ export function Dashboard() {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    fetchAllServices();
+  }, []);
+  const fetchAllServices = async () => {
+    try {
+      const response = await getAllService();
+      console.log(response);
+      setServices(response);
+    } catch (err) {
+      console.error("Error fetching customers:", err);
+    }
+  };
+
+  const getTotalRevenue = services.reduce((total, service) => {
+    return total + service.servicePrice;
+  }, 0);
 
   // Dummy stats data
   const stats = {
@@ -59,7 +78,7 @@ export function Dashboard() {
               Total Revenue
             </dt>
             <dd className="mt-1 text-3xl font-semibold text-gray-900">
-              ${"0.00"}
+              ${getTotalRevenue || "0.00"}
             </dd>
           </div>
         </div>
