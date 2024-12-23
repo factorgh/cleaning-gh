@@ -28,37 +28,38 @@ export function Login() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 animate-fade-in">
       {/* Left Side Image */}
-      <div className="hidden lg:block w-1/2">
+      <div className="hidden lg:block w-1/2 relative overflow-hidden">
         <img
           src="/logo.jpg"
           alt="Car Cleaning Service"
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full transform hover:scale-105 transition-transform duration-700"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-transparent" />
       </div>
 
       {/* Right Side Form */}
-      <div className="flex items-center justify-center w-full lg:w-1/2 p-8 bg-white">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="text-3xl font-extrabold text-gray-900">
+      <div className="flex items-center justify-center w-full lg:w-1/2 p-8 animate-slide-up">
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-card">
+          <div className="text-center">
+            <h2 className="text-3xl font-extrabold text-secondary-900 tracking-tight">
               Welcome Back
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-secondary-600">
               Sign in to access your dashboard and manage your services.
             </p>
           </div>
 
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="rounded-lg bg-error-50 p-4 animate-bounce-slow">
+              <p className="text-sm text-error-500 font-medium">{error}</p>
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium">
+          <form className="space-y-6 mt-8" onSubmit={handleSubmit}>
+            <div className="space-y-1">
+              <label htmlFor="username" className="block text-sm font-medium text-secondary-700">
                 Username
               </label>
               <input
@@ -66,7 +67,7 @@ export function Login() {
                 name="username"
                 type="text"
                 required
-                className="w-full px-3 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-200"
+                className="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 placeholder="Enter your username"
                 value={formData.username}
                 onChange={(e) =>
@@ -74,8 +75,9 @@ export function Login() {
                 }
               />
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium">
+
+            <div className="space-y-1">
+              <label htmlFor="password" className="block text-sm font-medium text-secondary-700">
                 Password
               </label>
               <input
@@ -83,7 +85,7 @@ export function Login() {
                 name="password"
                 type="password"
                 required
-                className="w-full px-3 py-2 mt-1 border rounded-md focus:ring focus:ring-blue-200"
+                className="w-full px-4 py-2 border border-secondary-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) =>
@@ -91,18 +93,19 @@ export function Login() {
                 }
               />
             </div>
+
             <button
               type="submit"
-              className="w-full py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+              className="w-full py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-102 active:scale-95"
             >
               Sign In
             </button>
           </form>
 
           {/* Footer */}
-          <div className="text-center text-sm text-gray-500">
-            Don’t have an account?{" "}
-            <a href="#" className="text-blue-500 hover:underline">
+          <div className="text-center text-sm text-secondary-600">
+            Don't have an account?{" "}
+            <a href="#" className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200">
               Sign Up
             </a>
           </div>

@@ -31,7 +31,9 @@ export function Layout({ children }) {
   const SidebarContent = (
     <div className="flex flex-col w-64 h-full">
       <div className="flex items-center px-4 py-4 bg-gray-100">
-        <h3 className="text-lg font-bold">Carbon Cleaning</h3>
+        <h3 className="text-lg font-bold">
+          <img src="/newlogocc.png" className="h-16 w-28" alt="Logo" />
+        </h3>
       </div>
       <nav className="mt-5 flex-1 px-2 space-y-1">
         {navigation.map((item) => {
