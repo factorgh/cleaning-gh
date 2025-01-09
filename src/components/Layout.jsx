@@ -2,9 +2,7 @@
 import {
   ChartBarIcon,
   HomeIcon,
-  TruckIcon,
   UserGroupIcon,
-  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 import { Drawer } from "antd";
 import { LogInIcon, Menu } from "lucide-react";
@@ -14,9 +12,6 @@ import { Link, useLocation } from "react-router-dom";
 const navigation = [
   { name: "Dashboard", href: "/", icon: HomeIcon },
   { name: "Customers", href: "/customers", icon: UserGroupIcon },
-  { name: "Cars", href: "/cars", icon: TruckIcon },
-  { name: "Services", href: "/services", icon: WrenchScrewdriverIcon },
-  { name: "Statistics", href: "/statistics", icon: ChartBarIcon },
   { name: "Logout", href: "/login", icon: LogInIcon },
 ];
 

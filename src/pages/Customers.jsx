@@ -26,12 +26,16 @@
  * @version 1.0.0
  */
 
+import { EyeOutlined } from "@ant-design/icons";
 import {
   Button as AntButton,
   Card as AntCard,
   Input as AntInput,
   Select as AntSelect,
+  Form,
+  Modal,
 } from "antd";
+import moment from "moment"; // Ensure Moment.js is installed
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { formatValidationError } from "../lib/utils/validation";
@@ -42,6 +46,13 @@ import {
   updateCustomer,
 } from "../services-api/customerApi";
 
+const CAR_TYPES = {
+  DIESEL: "Diesel",
+  PETROL: "Petrol",
+  HYBRID: "Hybrid",
+  GAS: "Gas",
+};
+
 export function Customers() {
   /**
    * State management for customer data and UI controls
@@ -50,15 +61,34 @@ export function Customers() {
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [viewCustomer, setViewCustomer] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    address: "",
     type: "individual",
+    location: "",
+    brand: "",
+    mileage: "",
+    preEmissions: "",
+    postEmissions: "",
+    fuel: "",
+    carType: "",
+    engineCapacity: "",
   });
   const [error, setError] = useState("");
+  console.log(
+    "-------------------------------------emissions-------------------"
+  );
+  console.log(viewCustomer);
+
+  const handleView = (customer) => {
+    setViewCustomer(customer);
+
+    setShowModal(true);
+  };
 
   /**
    * Fetches all customers on component mount
@@ -87,13 +117,13 @@ export function Customers() {
    * @function handleSubmit
    * @param {Event} e - The form submission event
    */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setIsLoading(true);
     try {
       if (isEditing) {
         await updateCustomer(editId, formData);
       } else {
+        console.log(formData);
         await createCustomer(formData);
       }
       getAllCustomers();
@@ -106,18 +136,6 @@ export function Customers() {
       setIsLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   if (isEditing) {
-  //     setFormData({
-  //       name:
-  //       email:
-  //       phone:
-  //       address:
-  //       type:
-  //     });
-  //   }
-  // }, [customers, isEditing]);
 
   const handleEditing = (customer) => {
     setIsAdding(true);
@@ -139,6 +157,7 @@ export function Customers() {
       if (result.isConfirmed) {
         // Perform the delete operation
         await deleteCustomer(itemId);
+        getAllCustomers();
         Swal.fire("Deleted!", "Your item has been deleted.", "success");
       }
     });
@@ -155,6 +174,56 @@ export function Customers() {
             Manage and track your customer relationships
           </p>
         </div>
+
+        {showModal && viewCustomer && (
+          <Modal
+            title="Customer Details"
+            open={showModal}
+            onCancel={() => setShowModal(false)}
+            width={1000}
+            footer={null}
+            centered
+            className="rounded-lg shadow-xl p-6"
+          >
+            <div className="space-y-6">
+              <h2 className="text-2xl font-extrabold text-gray-700 text-center mb-4">
+                Customer Details
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {Object.entries(viewCustomer).map(([key, value]) => {
+                  // Custom formatting logic for specific keys
+                  let displayValue = value;
+                  if (key === "_id") {
+                    displayValue = `#${value}`; // Add a prefix to IDs
+                  } else if (key === "createdAt") {
+                    displayValue = moment(value).format(
+                      "MMMM Do YYYY, h:mm:ss a"
+                    ); // Format to readable date
+                  } else if (key === "mileage") {
+                    displayValue = `${value} km`; // Add units to mileage
+                  } else if (typeof value === "boolean") {
+                    displayValue = value ? "Yes" : "No"; // Display booleans as Yes/No
+                  }
+
+                  return (
+                    <div
+                      key={key}
+                      className="bg-white rounded-lg p-4 shadow-lg border border-gray-200 hover:shadow-2xl transition-shadow"
+                    >
+                      <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                        {key.replace(/([A-Z])/g, " $1")}{" "}
+                        {/* Format key names */}
+                      </span>
+                      <span className="block text-lg font-medium text-gray-800 mt-2">
+                        {displayValue} {/* Display transformed value */}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Modal>
+        )}
         <AntButton
           type="primary"
           onClick={() => setIsAdding(true)}
@@ -190,162 +259,24 @@ export function Customers() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-error-50 border border-error-200 text-error-700 p-4 rounded-lg animate-bounce-slow flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-error-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                {error}
-              </div>
-            )}
-
+          <Form
+            onFinish={handleSubmit}
+            layout="vertical"
+            initialValues={formData}
+            className="space-y-6"
+          >
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-secondary-700 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  Name
-                </label>
+              <Form.Item label="Customer Name" name="name" required>
                 <AntInput
-                  placeholder="Enter customer name"
+                  placeholder="Enter customer email"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  required
                   className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-secondary-700 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Email
-                </label>
-                <AntInput
-                  type="email"
-                  placeholder="customer@example.com"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                  className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-secondary-700 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  Phone
-                </label>
-                <AntInput
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-secondary-700 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  Address
-                </label>
-                <AntInput
-                  placeholder="Enter full address"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-secondary-700 flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-primary-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  Customer Type
-                </label>
+              </Form.Item>
+              <Form.Item label="Customer Type" name="type" required>
                 <AntSelect
                   value={formData.type}
                   onChange={(value) =>
@@ -358,56 +289,194 @@ export function Customers() {
                   </AntSelect.Option>
                   <AntSelect.Option value="company">Company</AntSelect.Option>
                 </AntSelect>
+              </Form.Item>
+
+              <Form.Item
+                label="Email"
+                name="email"
+                required
+                rules={[{ type: "email" }]}
+              >
+                <AntInput
+                  placeholder="Enter customer email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                />
+              </Form.Item>
+
+              <Form.Item label="Phone Number" name="phone" required>
+                <AntInput
+                  type="tel"
+                  placeholder="+1 (555) 000-0000"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                />
+              </Form.Item>
+
+              <Form.Item label="Location" name="location" required>
+                <AntInput
+                  placeholder="Enter customer location"
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                  className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                />
+              </Form.Item>
+
+              <div className="col-span-2">
+                <h3 className="text-lg font-semibold mb-4">Car Details</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <Form.Item label="Car Brand" name="brand" required>
+                    <AntInput
+                      placeholder="Enter car brand"
+                      value={formData.brand}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+
+                          brand: e.target.value,
+                        })
+                      }
+                      className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    />
+                  </Form.Item>
+
+                  <Form.Item label="Car Type" name="carType" required>
+                    <AntSelect
+                      value={formData.carType}
+                      onChange={(value) =>
+                        setFormData({
+                          ...formData,
+                          carType: value,
+                        })
+                      }
+                      className="w-full hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    >
+                      <AntSelect.Option value={CAR_TYPES.DIESEL}>
+                        Diesel
+                      </AntSelect.Option>
+                      <AntSelect.Option value={CAR_TYPES.PETROL}>
+                        Petrol
+                      </AntSelect.Option>
+                      <AntSelect.Option value={CAR_TYPES.HYBRID}>
+                        Hybrid
+                      </AntSelect.Option>
+                      <AntSelect.Option value={CAR_TYPES.GAS}>
+                        Gas
+                      </AntSelect.Option>
+                    </AntSelect>
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Fuel Brand"
+                    name={["carDetails", "fuelBrand"]}
+                    required
+                  >
+                    <AntInput
+                      placeholder="Enter fuel brand"
+                      value={formData.fuel}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          fuel: e.target.value,
+                        })
+                      }
+                      className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Engine Capacity"
+                    name="engineCapacity"
+                    required
+                  >
+                    <AntInput
+                      type="number"
+                      placeholder="Enter engine capacity"
+                      value={formData.engineCapacity}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          engineCapacity: e.target.value,
+                        })
+                      }
+                      className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Mileage"
+                    name={["carDetails", "mileage"]}
+                    required
+                  >
+                    <AntInput
+                      type="number"
+                      placeholder="Enter mileage"
+                      value={formData.mileage}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          mileage: e.target.value,
+                        })
+                      }
+                      className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Pre-MOT Emissions"
+                    name="preEmissions"
+                    required
+                  >
+                    <AntInput
+                      placeholder="Enter pre-MOT emissions"
+                      value={formData.preEmissions}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+
+                          preEmissions: e.target.value,
+                        })
+                      }
+                      className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Post-MOT Emissions"
+                    name="postEmissions"
+                    required
+                  >
+                    <AntInput
+                      placeholder="Enter post-MOT emissions"
+                      value={formData.postEmissions}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          postEmissions: e.target.value,
+                        })
+                      }
+                      className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
+                    />
+                  </Form.Item>
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4 border-t border-secondary-200">
-              <AntButton
-                onClick={() => setIsAdding(false)}
-                className="hover:bg-secondary-50 transition-all duration-200 flex items-center gap-2"
-                icon={
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                }
-              >
-                Cancel
-              </AntButton>
-              <AntButton
-                loading={isLoading}
-                type="primary"
-                htmlType="submit"
-                className="bg-primary-600 hover:bg-primary-700 transform hover:scale-102 active:scale-98 transition-all duration-200 flex items-center gap-2"
-                icon={
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                }
-              >
+            <div className="flex justify-end space-x-3 pt-4">
+              <AntButton onClick={() => setIsAdding(false)}>Cancel</AntButton>
+              <AntButton type="primary" htmlType="submit" loading={isLoading}>
                 Save Customer
               </AntButton>
             </div>
-          </form>
+          </Form>
         </AntCard>
       )}
 
@@ -490,7 +559,7 @@ export function Customers() {
                     {customer.phone}
                   </p>
                 )}
-                {customer.address && (
+                {customer.location && (
                   <p className="flex items-center group/item hover:text-primary-600 transition-colors duration-200">
                     <svg
                       className="w-4 h-4 mr-2 text-secondary-400 group-hover/item:text-primary-500 transition-colors duration-200"
@@ -511,12 +580,14 @@ export function Customers() {
                         d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
-                    {customer.address}
+                    {customer.location}
                   </p>
                 )}
               </div>
+
               {/* Edit button  */}
               <div className="pt-4 mt-4 border-t border-secondary-200 flex justify-end space-x-2">
+                <EyeOutlined onClick={() => handleView(customer)} />
                 <button
                   onClick={() => handleEditing(customer)}
                   className="p-2 hover:bg-primary-50 rounded-full transition-colors duration-200"
