@@ -68,7 +68,7 @@ export function Customers() {
     name: "",
     email: "",
     phone: "",
-    type: "individual",
+    type: "",
     location: "",
     brand: "",
     mileage: "",
@@ -124,7 +124,11 @@ export function Customers() {
         await updateCustomer(editId, formData);
       } else {
         console.log(formData);
-        await createCustomer(formData);
+        const formattedResults = {
+          ...formData,
+          accountType: formData.type,
+        };
+        await createCustomer(formattedResults);
       }
       getAllCustomers();
       setIsAdding(false);
@@ -266,7 +270,7 @@ export function Customers() {
             className="space-y-6"
           >
             <div className="grid gap-6 md:grid-cols-2">
-              <Form.Item label="Customer Name" name="name" required>
+              <Form.Item label="Customer Name" name="name">
                 <AntInput
                   placeholder="Enter customer email"
                   value={formData.name}
@@ -276,7 +280,7 @@ export function Customers() {
                   className="hover:border-primary-400 focus:border-primary-500 transition-all duration-200"
                 />
               </Form.Item>
-              <Form.Item label="Customer Type" name="type" required>
+              <Form.Item label="Customer Type" name="type">
                 <AntSelect
                   value={formData.type}
                   onChange={(value) =>
@@ -291,12 +295,7 @@ export function Customers() {
                 </AntSelect>
               </Form.Item>
 
-              <Form.Item
-                label="Email"
-                name="email"
-                required
-                rules={[{ type: "email" }]}
-              >
+              <Form.Item label="Email" name="email" rules={[{ type: "email" }]}>
                 <AntInput
                   placeholder="Enter customer email"
                   value={formData.email}
@@ -307,7 +306,7 @@ export function Customers() {
                 />
               </Form.Item>
 
-              <Form.Item label="Phone Number" name="phone" required>
+              <Form.Item label="Phone Number" name="phone">
                 <AntInput
                   type="tel"
                   placeholder="+1 (555) 000-0000"
@@ -319,7 +318,7 @@ export function Customers() {
                 />
               </Form.Item>
 
-              <Form.Item label="Location" name="location" required>
+              <Form.Item label="Location" name="location">
                 <AntInput
                   placeholder="Enter customer location"
                   value={formData.location}
@@ -333,7 +332,7 @@ export function Customers() {
               <div className="col-span-2">
                 <h3 className="text-lg font-semibold mb-4">Car Details</h3>
                 <div className="grid gap-6 md:grid-cols-2">
-                  <Form.Item label="Car Brand" name="brand" required>
+                  <Form.Item label="Car Brand" name="brand">
                     <AntInput
                       placeholder="Enter car brand"
                       value={formData.brand}
@@ -348,7 +347,7 @@ export function Customers() {
                     />
                   </Form.Item>
 
-                  <Form.Item label="Car Type" name="carType" required>
+                  <Form.Item label="Car Type" name="carType">
                     <AntSelect
                       value={formData.carType}
                       onChange={(value) =>
@@ -377,7 +376,6 @@ export function Customers() {
                   <Form.Item
                     label="Fuel Brand"
                     name={["carDetails", "fuelBrand"]}
-                    required
                   >
                     <AntInput
                       placeholder="Enter fuel brand"
@@ -392,13 +390,9 @@ export function Customers() {
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    label="Engine Capacity"
-                    name="engineCapacity"
-                    required
-                  >
+                  <Form.Item label="Engine Capacity" name="engineCapacity">
                     <AntInput
-                      type="number"
+                      type="text"
                       placeholder="Enter engine capacity"
                       value={formData.engineCapacity}
                       onChange={(e) =>
@@ -411,13 +405,9 @@ export function Customers() {
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    label="Mileage"
-                    name={["carDetails", "mileage"]}
-                    required
-                  >
+                  <Form.Item label="Mileage" name={["carDetails", "mileage"]}>
                     <AntInput
-                      type="number"
+                      type="text"
                       placeholder="Enter mileage"
                       value={formData.mileage}
                       onChange={(e) =>
@@ -430,11 +420,7 @@ export function Customers() {
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    label="Pre-MOT Emissions"
-                    name="preEmissions"
-                    required
-                  >
+                  <Form.Item label="Pre-MOT Emissions" name="preEmissions">
                     <AntInput
                       placeholder="Enter pre-MOT emissions"
                       value={formData.preEmissions}
@@ -449,11 +435,7 @@ export function Customers() {
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    label="Post-MOT Emissions"
-                    name="postEmissions"
-                    required
-                  >
+                  <Form.Item label="Post-MOT Emissions" name="postEmissions">
                     <AntInput
                       placeholder="Enter post-MOT emissions"
                       value={formData.postEmissions}
@@ -497,14 +479,31 @@ export function Customers() {
                     {customer.name}
                   </h3>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
-                    ${
-                      customer.type === "individual"
-                        ? "bg-primary-100 text-primary-800"
-                        : "bg-secondary-100 text-secondary-800"
-                    }`}
+                    className={`inline-flex items-center  py-0.5 rounded-full text-xs font-medium mt-1
+    ${
+      customer.type === "individual"
+        ? "bg-primary-100 text-primary-800"
+        : "bg-secondary-100 text-secondary-800"
+    }`}
                   >
-                    {customer.type}
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d={
+                          customer.type === "individual"
+                            ? "M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m6-10a4 4 0 100-8 4 4 0 000 8z" // Person Icon
+                            : "M3 3v18h18V3H3zm9 2h6v3h-6V5zm0 5h6v3h-6v-3zM5 5h6v5H5V5zm0 7h6v6H5v-6zm8 6v-3h6v3h-6z" // Building Icon
+                        }
+                      />
+                    </svg>
+                    {customer.accountType}
                   </span>
                 </div>
                 <div className="p-2 bg-secondary-50 rounded-full group-hover:bg-primary-50 transition-colors duration-200">
