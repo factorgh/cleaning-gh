@@ -130,7 +130,7 @@ export function Customers() {
         };
         await createCustomer(formattedResults);
       }
-      getAllCustomers();
+      await getAllCustomers();
       setIsAdding(false);
     } catch (err) {
       if (err instanceof Error) {
@@ -161,7 +161,7 @@ export function Customers() {
       if (result.isConfirmed) {
         // Perform the delete operation
         await deleteCustomer(itemId);
-        getAllCustomers();
+        await getAllCustomers();
         Swal.fire("Deleted!", "Your item has been deleted.", "success");
       }
     });
@@ -204,7 +204,7 @@ export function Customers() {
                       "MMMM Do YYYY, h:mm:ss a"
                     ); // Format to readable date
                   } else if (key === "mileage") {
-                    displayValue = `${value} km`; // Add units to mileage
+                    displayValue = `${value}`; // Add units to mileage
                   } else if (typeof value === "boolean") {
                     displayValue = value ? "Yes" : "No"; // Display booleans as Yes/No
                   }
